@@ -1,0 +1,30 @@
+name: Daily Number Update
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Runs at 6 AM UTC daily
+  workflow_dispatch:      # Allows manual trigger
+
+jobs:
+  update-number:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Update number
+        run: |
+          # Read and increment number
+          NUMBER=$(<number.txt)
+          NEW_NUMBER=$((NUMBER + 1))
+          echo $NEW_NUMBER > number.txt
+          
+          # Configure Git
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          
+          # Commit and push changes
+          git add number.txt
+          git commit -m "Update number to ${NEW_NUMBER}"
+          git push
